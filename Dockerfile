@@ -1,3 +1,4 @@
+## This Dockerfile is structured as a multi-stage build in order to have a smaller image at the end and reduce attack surface
 FROM debian:stable-slim as builder
 
 COPY checksum.sh /
