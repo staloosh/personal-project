@@ -1,8 +1,10 @@
 pipeline { 
-    agent any 
-    def REPO_URL = "staloosh/litecoin"
-    def HELM_APPNAME = "litecoin"
-    def HELM_CHART_PATH = "kubernetes/litecoin-chart"
+    agent any
+    environment {
+    REPO_URL = "staloosh/litecoin"
+    HELM_APPNAME = "litecoin"
+    HELM_CHART_PATH = "kubernetes/litecoin-chart"
+    }
     stages {
         stage('Build docker image') { 
            withCredentials([usernamePassword(credentialsId: 'docker-login', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
