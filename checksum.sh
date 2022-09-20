@@ -12,6 +12,8 @@ sha256sum ${LINUX_ARCHIVE} | awk -F ' ' '{print $1}' > ${DOWNLOAD_CHECKSUM_FILE}
 
 diff ${SOURCE_CHECKSUM_FILE} ${DOWNLOAD_CHECKSUM_FILE}
 if [ $? == 0 ]
-  then echo "The downloaded archive's checksum matches the verified one"
-  else echo "WARNING - the downloaded archive's checksum does not match the verified one"
+  then
+    echo "The downloaded archive's checksum matches the verified one"
+  else
+    echo "WARNING - the downloaded archive's checksum does not match the verified one"
 fi
