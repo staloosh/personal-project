@@ -15,18 +15,22 @@ pipeline {
               }
            }
         }
-       
-        stage('Test for vulnerabilities'){
-            steps {
-                sh "docker scan --file Dockerfile ${REPO_URL}:${BUILD_NUMBER} " 
-            }
-        }
         stage('Push docker image') {
             steps {
               withCredentials([usernamePassword(credentialsId: 'docker-login', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                 sh 'docker images'
                 sh "docker push ${REPO_URL}:${BUILD_NUMBER}"
               }
+            }
+        }
+        stage('Test for vulnerabilities using Trivy'){
+            steps {
+                sh "trivy image ${REPO_URL}:${BUILD_NUMBER}"
+            }
+        }
+        stage('Test for vulnerabilities using Snyk'){
+            steps {
+                sh "docker scan --file Dockerfile ${REPO_URL}:${BUILD_NUMBER}" 
             }
         }
         stage('Deploy to k3s') {
