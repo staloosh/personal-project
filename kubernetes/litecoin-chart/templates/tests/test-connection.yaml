@@ -8,8 +8,7 @@ metadata:
     "helm.sh/hook": test
 spec:
   containers:
-    - name: wget
-      image: busybox
-      command: ['wget']
-      args: ['{{ include "litecoin-chart.fullname" . }}:{{ .Values.service.port }}']
+    - name: netcat
+      image: nicolaka/netshoot
+      command: ['sh', '-c', 'nc -v {{ include "litecoin-chart.fullname" . }}.{{ .Values.namespace }}.svc.cluster.local {{ .Values.service.port }}']
   restartPolicy: Never

@@ -10,6 +10,6 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.targetPort }}
       protocol: TCP
-      name: custom-service-port
+      name: {{ .Values.service.name}}
   selector:
     {{- include "litecoin-chart.selectorLabels" . | nindent 4 }}
