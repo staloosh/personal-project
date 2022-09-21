@@ -4,6 +4,7 @@ pipeline {
         REPO_URL = 'staloosh/litecoin'
         HELM_APPNAME = 'litecoin'
         HELM_CHART_PATH = 'kubernetes/litecoin-chart'
+        NAMESPACE = 'crypto'
         registryCredential = 'docker-login'
         dockerImage = ''
     }
@@ -46,7 +47,10 @@ pipeline {
         }
         stage('Deploy to k3s') {
             steps {
-                sh "echo 'Deploying...'"
+                sh "kubectl create namespace ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -"
+                sh "helm upgrade --install -f ${HELM_CHART_PATH}/values/test.yaml \
+                ${HELM_APPNAME} ${HELM_CHART_PATH} -n ${NAMESPACE}"
+                sh "helm get manifest -n ${NAMESPACE} ${HELM_APPNAME}"
             }
         }
     }
