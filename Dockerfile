@@ -57,7 +57,7 @@ RUN set -x \
 COPY --from=builder --chown=litecoin:litecoin /crypto /crypto
 WORKDIR /crypto/litecoin-${LTC_VER}/bin
 
-EXPOSE 9332
+EXPOSE 9333
 USER litecoin
 
 ENTRYPOINT [ "./litecoind" ]
