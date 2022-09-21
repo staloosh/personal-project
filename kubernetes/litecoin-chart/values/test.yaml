@@ -44,3 +44,13 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 namespace: crypto
+
+test:
+  name: netcat
+  image: nicolaka/netshoot
+
+tcpSocket:
+  port: 9333
+           
+volumeClaim:
+  storage: 10Gi

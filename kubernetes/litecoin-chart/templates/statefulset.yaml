@@ -41,7 +41,7 @@ spec:
               protocol: TCP
           readinessProbe:
             tcpSocket:
-              port: 9333
+              port: {{ .Values.tcpSocket.port }}
             initialDelaySeconds: 5
             timeoutSeconds: 3
             periodSeconds: 3
@@ -49,7 +49,7 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
           - name: litecoin-data
-            mountPath: "/home/litecoin/.litecoin"
+            mountPath: "/data"
   volumeClaimTemplates:
     - metadata:
         name: litecoin-data
@@ -57,7 +57,7 @@ spec:
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
-            storage: 10Gi
+            storage: {{ .Values.volumeClaim.storage }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
