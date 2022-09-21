@@ -39,16 +39,25 @@ spec:
             - name: {{ .Values.ports.name }}
               containerPort: {{ .Values.ports.containerPort }}
               protocol: TCP
-        #  livenessProbe:
-        #    httpGet:
-        #      path: /
-        #      port: http
-        #  readinessProbe:
-        #    httpGet:
-        #      path: /
-        #      port: http
+          readinessProbe:
+            tcpSocket:
+              port: 9333
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+            periodSeconds: 3
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+          - name: litecoin-data
+            mountPath: "/home/litecoin/.litecoin"
+  volumeClaimTemplates:
+    - metadata:
+        name: litecoin-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
