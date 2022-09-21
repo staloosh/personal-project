@@ -1,36 +1,47 @@
-pipeline { 
+pipeline {
     agent any
     environment {
-    REPO_URL = "staloosh/litecoin"
-    HELM_APPNAME = "litecoin"
-    HELM_CHART_PATH = "kubernetes/litecoin-chart"
+        REPO_URL = 'staloosh/litecoin'
+        HELM_APPNAME = 'litecoin'
+        HELM_CHART_PATH = 'kubernetes/litecoin-chart'
+        registryCredential = 'docker-login'
+        dockerImage = ''
     }
     stages {
         stage('Build docker image') {
             steps {
-              withCredentials([usernamePassword(credentialsId: 'docker-login', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                sh 'docker login --username="${USERNAME}" --password="${PASSWORD}"'
-                sh "docker build -t ${REPO_URL}:${BUILD_NUMBER} ."
-                sh 'docker images'
-              }
-           }
-        }
-        stage('Push docker image') {
-            steps {
-              withCredentials([usernamePassword(credentialsId: 'docker-login', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                sh 'docker images'
-                sh "docker push ${REPO_URL}:${BUILD_NUMBER}"
-              }
+                script {
+                    dockerImage = docker.build("${REPO_URL}:${env.BUILD_ID}")
+                }
             }
         }
-        stage('Test for vulnerabilities using Trivy'){
+        stage('Test for vulnerabilities using Trivy') {
             steps {
-                sh "trivy image ${REPO_URL}:${BUILD_NUMBER}"
+                sh "trivy image ${REPO_URL}:${env.BUILD_ID}"
             }
         }
-        stage('Test for vulnerabilities using Snyk'){
+        stage('Test for vulnerabilities using Snyk') {
             steps {
-                sh "docker scan --file Dockerfile ${REPO_URL}:${BUILD_NUMBER}" 
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh "docker scan ${REPO_URL}:${env.BUILD_ID} --accept-license"
+                    exit 0
+                }
+            }
+        }
+        stage('Deploy docker image to dockerhub') {
+            steps {
+                script {
+                    docker.withRegistry('', registryCredential) {
+                        dockerImage.push("${env.BUILD_ID}")
+                        dockerImage.push('latest')
+                    }
+                }
+            }
+        }
+        stage('Cleanup - Remove unused dockerimages from node') {
+            steps {
+                sh "docker rmi ${REPO_URL}:${env.BUILD_ID}"
+                sh "docker rmi ${REPO_URL}:latest"
             }
         }
         stage('Deploy to k3s') {
