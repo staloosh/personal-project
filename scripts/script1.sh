@@ -4,6 +4,7 @@
 ## Variable definition
 LOG_FILE="journal.log"
 OUTPUT="output.txt"
+RESULT="result.txt"
 
 ## Define function to parse logs
 parser() {
@@ -12,8 +13,8 @@ parser() {
     echo " -------------------------------------- "
     grep  $word ${LOG_FILE} > ${OUTPUT} 
     if [ $? -eq 0 ]; then
-        awk -F 'msg=' '{ print $2 }' ${OUTPUT} ; awk NF >${OUTPUT} 
-        cat $OUTPUT
+        awk -F 'msg=' '$2{print $2}' ${OUTPUT} > ${RESULT}
+        cat ${RESULT}
         exit 0
     else
         echo "error processing request"
