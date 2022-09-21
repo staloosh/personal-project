@@ -5,6 +5,11 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
+ports:
+  name: custom
+  containerPort: 9332
+  protocol: TCP
+
 serviceAccount:
   create: true
   annotations: {}
@@ -18,6 +23,7 @@ securityContext:
 service:
   type: ClusterIP
   port: 80
+  targetPort: custom
 
 
 resources: {}

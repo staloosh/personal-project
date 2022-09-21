@@ -36,8 +36,8 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 80
+            - name: {{ .Values.ports.name }}
+              containerPort: {{ .Values.ports.containerPort }}
               protocol: TCP
         #  livenessProbe:
         #    httpGet:
