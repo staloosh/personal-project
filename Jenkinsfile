@@ -16,11 +16,13 @@ pipeline {
                 }
             }
         }
+        // Scanning first with Trivy as this is the recommended tool when it comes to CKS
         stage('Test for vulnerabilities using Trivy') {
             steps {
                 sh "trivy image ${REPO_URL}:${env.BUILD_ID}"
             }
         }
+        // Scanning with 'docker scan' which uses Snyk, implemented catch error due to the limited number of scans per month - 10
         stage('Test for vulnerabilities using Snyk') {
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
@@ -45,12 +47,21 @@ pipeline {
                 sh "docker rmi ${REPO_URL}:latest"
             }
         }
+        // Deploying through helm but also outputing final manifests contents
         stage('Deploy to k3s') {
             steps {
                 sh "kubectl create namespace ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -"
                 sh "helm upgrade --install -f ${HELM_CHART_PATH}/values/test.yaml \
                 ${HELM_APPNAME} ${HELM_CHART_PATH} -n ${NAMESPACE}"
                 sh "helm get manifest -n ${NAMESPACE} ${HELM_APPNAME}"
+            }
+        }
+        // The following stage will use helm to test service reachability, thus confirming that the service has the proper endpoints which are up and running
+        // A sleep step was added to make sure the pod is running
+        stage('Test deployment connection') {
+            steps {
+                sh 'sleep 30'
+                sh "helm -n ${NAMESPACE} test ${HELM_APPNAME} --logs"
             }
         }
     }
