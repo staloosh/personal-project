@@ -8,7 +8,7 @@ metadata:
     "helm.sh/hook": test
 spec:
   containers:
-    - name: netcat
-      image: nicolaka/netshoot
+    - name: {{ .Values.test.name }}
+      image: {{ .Values.test.image }}
       command: ['sh', '-c', 'nc -v {{ include "litecoin-chart.fullname" . }}.{{ .Values.namespace }}.svc.cluster.local {{ .Values.service.port }}']
   restartPolicy: Never
