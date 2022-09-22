@@ -15,13 +15,19 @@ serviceAccount:
   annotations: {}
   name: "litecoinsa"
 
+podSecurityContext:
+  fsGroup: 1555
+
 securityContext:
+   runAsUser: 1555
+   runAsGroup: 1555
    privileged: false
    allowPrivilegeEscalation: false
    capabilities:
      drop:
      - ALL
-    
+
+args: "-datadir=/data"
 
 service:
   type: ClusterIP
