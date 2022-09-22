@@ -13,6 +13,7 @@ This IaaC project has the following steps:
 The constructed [Dockerfile](Dockerfile) aims to run a litecoin 0.18.1 daemon. In order to reduce the attack surface and also have a smaller image at the end, I decided to implement a multi-stage Dockerfile.
 
 In order to verify the checksum of the downloaded package I created a separate script [checksum.sh](checksum.sh) and also imported the gpg public key and verified the signature.
+This was done based on this [documentation](https://download.litecoin.org/README-HOWTO-GPG-VERIFY-TEAM-MEMBERS-KEY.txt).
 The docker image will be run as a non-privileged user as seen [here](https://github.com/staloosh/personal-project/blob/cb701c0b7e1fdc601a12396a5ca5c1da5dfe289b/Dockerfile#L61)
 
 The above mentioned strategies, multi-stage build and using a non-privileged user take into consideration the security aspect of the image.
@@ -51,4 +52,4 @@ For the pipeline itself I went with a declarative pipeline which has the followi
 - Cleanup the docker images from local Jenkins server
 - Deploy all Kubernetes manifests to k3s with the help of Helm
      > Note: Here, I also added a step to see the manifests after templating
-- Test if the Kubernetes service is running properly and that is has the proper pod endpoints - done through helm test
+- Test if the Kubernetes service is running properly and that it has the proper pod endpoints - done through helm test
