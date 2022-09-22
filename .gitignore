@@ -2,3 +2,4 @@
 scripts/output.txt
 scripts/result.txt
 scripts/output_python.txt
+.terraform*
