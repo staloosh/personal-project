@@ -17,7 +17,13 @@ This was done based on this [documentation](https://download.litecoin.org/README
 The docker image will be run as a non-privileged user as seen [here](https://github.com/staloosh/personal-project/blob/cb701c0b7e1fdc601a12396a5ca5c1da5dfe289b/Dockerfile#L61).
 
 The above mentioned strategies, multi-stage build and using a non-privileged user take into consideration the security aspect of the image.
-
+### 1.1 Running the docker image manually
+```sh
+docker image build -t litecoin:latest .
+```
+```sh
+docker run -dit --name=litecoind -p 9332:9332 litecoin:latest
+```
 ## Step 2 - Create Kubernetes manifests
 For this project, the needed Kubernetes resource to use the previously created image is a statefulSet.
 I am using a k3s cluster that I host in my home server, configured with one controlplane and one worker node.
@@ -35,7 +41,26 @@ Security conscious implementation:
 - new service account named litecoin
 - drop all capabilities in [securityContext](https://github.com/staloosh/personal-project/blob/cb701c0b7e1fdc601a12396a5ca5c1da5dfe289b/kubernetes/litecoin-chart/values/test.yaml#L18)
 - set automountServiceAccountToken to [false](https://github.com/staloosh/personal-project/blob/cb701c0b7e1fdc601a12396a5ca5c1da5dfe289b/kubernetes/litecoin-chart/templates/statefulset.yaml#L29)
-- restricting the pod with runAsUser in the securityContext was not needed as this was already defined in the Dockerfile
+- runAsUser, runAsGroup were set to 1555 at container level
+- fsGroup 1555 was set at pod level
+- separate namespace crypto - not really a security feature but nice to have
+
+### 2.1 Running the helmchart manually
+While being in the root of the cloned repository run the following:
+```sh
+kubectl create ns crypto
+helm -n crypto install -f kubernetes/litecoin-chart/values/test.yaml litecoin kubernetes/litecoin-chart
+```
+Afterwards we can test the connection:
+```sh
+helm -n crypto test litecoin --logs
+```
+
+The result will look somthing like this:
+
+![helm_test](screenshots/helm_test.png)
+
+
 
 ## Step 3 - Construct Jenkins pipeline
 For this step I used a Jenkins server that is running in my home server.
@@ -55,6 +80,12 @@ For the pipeline itself I went with a declarative pipeline which has the followi
      > Note: Here, I also added a step to see the manifests after templating
 - Test if the Kubernetes service is running properly and that it has the proper pod endpoints - done through helm test
 
+Pipeline stages in the Jenkins UI:
+
+![jenkins_pipeline](screenshots/jenkins.png)
+
+The Scan with Snyk fails because of running more than 10 scans/month
+
 ## Step 4 & 5 - Write scripts to solve a text manipulation problem
 While trying to debug my self hosted Kubernetes cluster in order to test the helmchart that I wrote for Step2, i was searching the journals to find more details - only to find out that the certificates were expired, therefore for this step I thought about writing scripts for the following problem: 
 
@@ -65,6 +96,8 @@ I tried to write the same multiple-choice script in both **bash** & **python**, 
 ## Step 6 - Write a terraform module to deploy IAM resources to AWS
 First things first, I opted to use **Terraform Cloud** as a remote backed, as it is very similar to a self hosted **Terraform Enterprise** instance. Terraform Cloud provides GUI runs, vizualization of workspaces, states and also allows defining sensitive variables (i.e. AWS secret keys).
 The terraform module was defined under terraform/modules/iam based on the standard module structure documented [here](https://www.terraform.io/language/modules/develop/structure). I also implemented some other best practices such as defining providers into providers.tf and versions in versions.tf.
+
+The AWS credentials were set in Terraform Cloud as sensitive variables.
 
 The module creates the following resource:
 - AWS IAM ROLE - with no permissions
@@ -77,4 +110,8 @@ The module outputs all of the names of the above mentioned resources, and these 
 By default the terraform code will run with the variable **environment** with a value of **test** and will create all resources with the following naming structure _environment_-_application_-_resourceType_, the default is **test-lite-role**.
 In order to be able to change the prefix of the created resources I created two additional tfvars files under the [env](terraform/env) directory for dev and prod environments.
 
-Also, to simplify terraform commands I created a [Makefile](terraform/Makefile) which allows to init, plan, deploy and destroy based on  chosen environment.
+Also, to simplify running terraform commands I created a [Makefile](terraform/Makefile) which allows to init, plan, deploy and destroy based on  chosen environment.
+
+Terraform cloud run:
+
+![terraform_cloud](screenshots/terraform.png)
