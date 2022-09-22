@@ -9,7 +9,7 @@ resource "aws_iam_role" "lite-role" {
         Action = "sts:AssumeRole"
         Effect = "Allow"
         Principal = {
-          AWS = "data.aws_caller_identity.current.account_id"
+          AWS = data.aws_caller_identity.current.account_id
         }
       },
     ]
