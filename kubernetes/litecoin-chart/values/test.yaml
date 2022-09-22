@@ -15,10 +15,13 @@ serviceAccount:
   annotations: {}
   name: "litecoinsa"
 
-securityContext: 
+securityContext:
+   privileged: false
+   allowPrivilegeEscalation: false
    capabilities:
      drop:
      - ALL
+    
 
 service:
   type: ClusterIP
