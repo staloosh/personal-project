@@ -16,7 +16,7 @@ ARG PACKAGE_URL="https://download.litecoin.org/litecoin-${LTC_VER}/linux/litecoi
 
 RUN set -x \
     && mkdir /crypto \
-    && useradd -m -d /crypto/litecoin-${LTC_VER}/bin litecoin
+    && useradd -m -d /crypto/litecoin-${LTC_VER}/bin -u 1555 litecoin
 
 RUN set -x \
     && apt-get -y update \
@@ -51,7 +51,8 @@ LABEL maintainer="Bogdan Astalus (bogdan@staloosh.eu)" \
 
 RUN set -x \
     && mkdir /appdata \
-    && useradd -m -d /crypto/litecoin-${LTC_VER}/bin litecoin \
+    && groupadd -g 1555 litecoin \
+    && useradd -m -d /crypto/litecoin-${LTC_VER}/bin -u 1555 -g 1555 litecoin \
     && chown -R litecoin:litecoin /appdata
 
 COPY --from=builder --chown=litecoin:litecoin /crypto /crypto
