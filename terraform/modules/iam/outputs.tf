@@ -1,11 +1,15 @@
-output "account_id" {
-  value = data.aws_caller_identity.current.account_id
+output "role" {
+  value = aws_iam_role.lite-role.name
 }
 
-output "caller_arn" {
-  value = data.aws_caller_identity.current.arn
+output "policy" {
+  value = aws_iam_group_policy.lite-policy.name
 }
 
-output "caller_user" {
-  value = data.aws_caller_identity.current.user_id
+output "group" {
+  value = aws_iam_group.lite-group.name
+}
+
+output "user" {
+  value = aws_iam_user.lite-user.name
 }

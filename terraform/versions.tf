@@ -4,7 +4,7 @@ terraform {
     organization = "staloosh"
 
     workspaces {
-      name = "personal-project"
+      name = "personal-project-workspace"
     }
   }
   required_providers {
