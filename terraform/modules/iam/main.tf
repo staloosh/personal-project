@@ -22,8 +22,6 @@ resource "aws_iam_group_policy" "lite-policy" {
   name  = "${lower(var.environment)}-${lower(var.app)}-policy"
   group = aws_iam_group.lite-group.name
 
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
