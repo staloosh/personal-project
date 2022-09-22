@@ -99,13 +99,13 @@ The terraform module was defined under terraform/modules/iam based on the standa
 
 The AWS credentials were set in Terraform Cloud as sensitive variables.
 
-The module creates the following resource:
+The module creates the following resources:
 - AWS IAM ROLE - with no permissions
 - AWS IAM GROUP POLICY
 - AWS IAM GROUP
 - AWS IAM USER
 
-The module outputs all of the names of the above mentioned resources, and these can be referenced in the root module output as such [outputs.tf](terraform/outputs.tf).
+The module outputs all the names of the above mentioned resources, and these can be referenced in the root module output as such [outputs.tf](terraform/outputs.tf).
 
 By default the terraform code will run with the variable **environment** with a value of **test** and will create all resources with the following naming structure _environment_-_application_-_resourceType_, the default is **test-lite-role**.
 In order to be able to change the prefix of the created resources I created two additional tfvars files under the [env](terraform/env) directory for dev and prod environments.
