@@ -45,13 +45,6 @@ resources:
      cpu: 1000m
      memory: 2048Mi
 
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
 namespace: crypto
 
 test:
